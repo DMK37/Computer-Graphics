@@ -2,7 +2,6 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 public class Calculation {
     private Calculation() {
@@ -105,58 +104,56 @@ public class Calculation {
         for (int i = 0; i < points.size() - 1; i++) {
             Point2D.Double a = new Point2D.Double(points.get(i).x, points.get(i).y);
             Point2D.Double b = new Point2D.Double(points.get(i + 1).x, points.get(i + 1).y);
-            if (Intersects(a, b, point, endless))
+            if (intersects(a, b, point, endless))
                 count++;
         }
         Point2D.Double a = new Point2D.Double(points.get(points.size() - 1).x, points.get(points.size() - 1).y);
         Point2D.Double b = new Point2D.Double(points.get(0).x, points.get(0).y);
-        if (Intersects(a, b, point, endless))
+        if (intersects(a, b, point, endless))
             count++;
         return count % 2 == 1;
     }
 
-    private static double CrossProduct(Point2D.Double p1, Point2D.Double p2, Point2D.Double p3) {
+    private static double crossProduct(Point2D.Double p1, Point2D.Double p2, Point2D.Double p3) {
         return (p2.getX() - p1.getX()) * (p3.getY() - p1.getY()) - (p2.getY() - p1.getY()) * (p3.getX() - p1.getX());
     }
 
-    public static boolean Intersects(Point2D.Double start1, Point2D.Double end1, Point2D.Double start2, Point2D.Double end2) {
-        double d1 = CrossProduct(start1, end1, start2);
-        double d2 = CrossProduct(start1, end1, end2);
-        double d3 = CrossProduct(start2, end2, start1);
-        double d4 = CrossProduct(start2, end2, end1);
+    public static boolean intersects(Point2D.Double start1, Point2D.Double end1, Point2D.Double start2, Point2D.Double end2) {
+        double d1 = crossProduct(start1, end1, start2);
+        double d2 = crossProduct(start1, end1, end2);
+        double d3 = crossProduct(start2, end2, start1);
+        double d4 = crossProduct(start2, end2, end1);
 
         return (d1 * d2 < 0 && d3 * d4 < 0);
     }
 
-    public static void bresenham(Graphics2D graphics, int x1, int y1, int x2, int y2)
-    {
+    public static void bresenham(Graphics2D graphics, int x1, int y1, int x2, int y2) {
         int dx = Math.abs(x2 - x1);
         int sx = x1 < x2 ? 1 : -1;
         int dy = -Math.abs(y2 - y1);
         int sy = y1 < y2 ? 1 : -1;
         int error = dx + dy;
-         while(true) {
-             graphics.drawRect(x1,y1,1,1);
-             if(x1 == x2 && y1 == y2) {
-                 break;
-             }
+        while (true) {
+            graphics.drawRect(x1, y1, 1, 1);
+            if (x1 == x2 && y1 == y2) {
+                break;
+            }
 
-             int e2 = 2 * error;
-             if(e2 >= dy) {
-                 if(x1 == x2) {
-                     break;
-                 }
-                 error += dy;
-                 x1 += sx;
-             }
-             if(e2 <= dx) {
-                 if(y1 == y2) {
-                     break;
-                 }
-                 error += dx;
-                 y1 += sy;
-             }
-         }
-
+            int e2 = 2 * error;
+            if (e2 >= dy) {
+                if (x1 == x2) {
+                    break;
+                }
+                error += dy;
+                x1 += sx;
+            }
+            if (e2 <= dx) {
+                if (y1 == y2) {
+                    break;
+                }
+                error += dx;
+                y1 += sy;
+            }
+        }
     }
 }

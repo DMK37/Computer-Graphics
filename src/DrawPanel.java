@@ -77,7 +77,6 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
         deletePolygon = new JMenuItem("Delete Polygon");
         deletePolygon.addActionListener(this);
         polygonMenu.add(deletePolygon);
-
     }
 
     public void pickAndDraw(Graphics2D graphics, Point a, Point b) {
@@ -92,11 +91,10 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D graphics = (Graphics2D) g;
-        var val = Color.RGBtoHSB(44, 115, 85, null);
-        g.setColor(Color.getHSBColor(val[0], val[1], val[2]));
 
         for (Polygon polygon :
                 polygons) {
+            g.setColor(Color.BLACK);
             if(MainPanel.sliderBox.isSelected() && polygon.isDone()) {
                 polygon.createOffset(MainPanel.slider.getValue());
                 polygon.findOffset();
@@ -105,23 +103,19 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
                     Point a = polygon.offsetPoints.get(i);
                     Point b = polygon.offsetPoints.get(i + 1);
                     pickAndDraw(graphics, a, b);
-                    graphics.drawOval(a.x - 4, a.y - 4, 8, 8);
-                    graphics.fillOval(a.x - 4, a.y - 4, 8, 8);
                 }
                 Point b = polygon.offsetPoints.get(polygon.offsetPoints.size() - 1);
-                graphics.drawOval(b.x - 4, b.y - 4, 8, 8);
-                graphics.fillOval(b.x - 4, b.y - 4, 8, 8);
                 Point a = polygon.offsetPoints.get(0);
                 pickAndDraw(graphics, a, b);
             }
+            var val = Color.RGBtoHSB(44, 115, 85, null);
+            g.setColor(Color.getHSBColor(val[0], val[1], val[2]));
             for (int i = 0; i < polygon.getPoints().size() - 1; i++) {
                 Point a = polygon.getPoints().get(i);
                 Point b = polygon.getPoints().get(i + 1);
                 pickAndDraw(graphics, a, b);
                 graphics.drawOval(a.x - 4, a.y - 4, 8, 8);
                 graphics.fillOval(a.x - 4, a.y - 4, 8, 8);
-
-
                 if (polygon.getPosition(i) == Position.Vertical) {
                     graphics.drawImage(verticalIcon.getImage(), a.x - 10, (b.y + a.y) / 2 - 11, 20, 23, this);
                 }
@@ -152,14 +146,12 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
             if (!polygons.get(lastIdx).isDone() && !ls.isEmpty()) {
                 Point p = ls.get(ls.size() - 1);
                 pickAndDraw(graphics, p, new Point(x, y));
-                //graphics.drawLine(p.x, p.y, x, y);
             }
         }
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
         switch (e.getButton()) {
             case MouseEvent.BUTTON1:
                 if (!MainPanel.isDrawBox())
@@ -177,8 +169,6 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
 
                 repaint();
                 break;
-
-
         }
     }
 
@@ -270,7 +260,6 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
         if (MainPanel.isDrawBox())
             return;
         if (SwingUtilities.isLeftMouseButton(e)) {
-
             if (draggedPointIdx != -1) {
                 var points = currentPolygon.getPoints();
                 points.get(draggedPointIdx).x = e.getX();
@@ -448,17 +437,14 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
             MainPanel.slider.setEnabled(MainPanel.sliderBox.isSelected());
             repaint();
         }
-
         if(e.getSource() == MainPanel.bresenhamBox) {
             repaint();
         }
-
     }
 
     @Override
     public void stateChanged(ChangeEvent e) {
         if(e.getSource() == MainPanel.slider) {
-            //System.out.println(MainPanel.slider.getValue());
             repaint();
         }
     }
