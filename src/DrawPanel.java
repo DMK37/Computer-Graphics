@@ -1,17 +1,23 @@
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class DrawPanel extends JPanel implements MouseListener, MouseMotionListener, ActionListener, ChangeListener {
-    private final List<Polygon> polygons;
+    private List<Polygon> polygons;
     private int x;
     private int y;
+
+    JFileChooser fileChooser = new JFileChooser();
 
     private int draggedPointIdx;
     private int[] draggedLineIdx;
@@ -43,14 +49,45 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
     private static ImageIcon horizontalIcon = new ImageIcon("icons/horizontal.png");
 
     public DrawPanel() {
+
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("XML FILES", "xml", "XML");
+        fileChooser.setFileFilter(filter);
         draggedPointIdx = -1;
         draggedLineIdx = null;
         polygons = new ArrayList<>();
         polygons.add(new Polygon());
-        polygons.get(0).add(new Point(150, 100));
-        polygons.get(0).add(new Point(100, 500));
-        polygons.get(0).add(new Point(600, 400));
-        polygons.get(0).add(new Point(150, 100));
+        polygons.get(0).add(new Point(169, 99));
+        polygons.get(0).add(new Point(95, 446));
+        polygons.get(0).add(new Point(530, 419));
+        polygons.get(0).add(new Point(530, 151));
+        polygons.get(0).add(new Point(445, 99));
+        polygons.get(0).add(new Point(169, 99));
+        polygons.get(0).setHorizontal(4);
+        polygons.get(0).setVertical(2);
+
+        int move = 150;
+        polygons.add(new Polygon());
+        polygons.get(1).add(new Point(639,511-move));
+        polygons.get(1).add(new Point(716,544-move));
+        polygons.get(1).add(new Point(920,544-move));
+        polygons.get(1).add(new Point(920,723-move));
+        polygons.get(1).add(new Point(855, 810-move));
+        polygons.get(1).add(new Point(637,827-move));
+        polygons.get(1).add(new Point(504, 827-move));
+        polygons.get(1).add(new Point(469, 740-move));
+        polygons.get(1).add(new Point(651, 760-move));
+        polygons.get(1).add(new Point(771, 733-move));
+        polygons.get(1).add(new Point(788, 614-move));
+        polygons.get(1).add(new Point(659, 589-move));
+        polygons.get(1).add(new Point(578,636-move));
+        polygons.get(1).add(new Point(639,511-move));
+        polygons.get(1).setHorizontal(1);
+        polygons.get(1).setVertical(2);
+        polygons.get(1).setHorizontal(5);
+
+
+
+
         JPanel j = new JPanel();
         pointMenu = new JPopupMenu();
         polygonMenu = new JPopupMenu();
@@ -79,7 +116,11 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
         polygonMenu.add(deletePolygon);
     }
 
-    public void pickAndDraw(Graphics2D graphics, Point a, Point b) {
+    public void pickAndDraw(Graphics2D graphics, Point a, Point b,int r, int g, int bl) {
+        if(MainPanel.wuBox.isSelected())
+        {
+            Calculation.WuAlgo(graphics,a.x,a.y,b.x,b.y,r,g,bl);
+        }
         if (MainPanel.bresenhamBox.isSelected()) {
             Calculation.bresenham(graphics, a.x, a.y, b.x, b.y);
         } else {
@@ -91,7 +132,7 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D graphics = (Graphics2D) g;
-
+        var val = Color.RGBtoHSB(44, 115, 85, null);
         for (Polygon polygon :
                 polygons) {
             g.setColor(Color.BLACK);
@@ -99,21 +140,22 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
                 polygon.createOffset(MainPanel.slider.getValue());
                 polygon.findOffset();
 
-                for (int i = 0; i < polygon.getPoints().size() - 1; i++) {
-                    Point a = polygon.offsetPoints.get(i);
-                    Point b = polygon.offsetPoints.get(i + 1);
-                    pickAndDraw(graphics, a, b);
+                var map = polygon.polishOffset();
+                for(int i = 0; i < polygon.offsetPoints.size(); i++) {
+                    var ls = map.get(i);
+                    if(ls.get(1) == null || ls.get(0) == null)
+                        continue;
+                    pickAndDraw(graphics, polygon.offsetPoints.get(i), ls.get(0),0,0,0);
+                    pickAndDraw(graphics, polygon.offsetPoints.get(i), ls.get(1),0,0,0);
                 }
-                Point b = polygon.offsetPoints.get(polygon.offsetPoints.size() - 1);
-                Point a = polygon.offsetPoints.get(0);
-                pickAndDraw(graphics, a, b);
             }
-            var val = Color.RGBtoHSB(44, 115, 85, null);
+
             g.setColor(Color.getHSBColor(val[0], val[1], val[2]));
             for (int i = 0; i < polygon.getPoints().size() - 1; i++) {
                 Point a = polygon.getPoints().get(i);
                 Point b = polygon.getPoints().get(i + 1);
-                pickAndDraw(graphics, a, b);
+                pickAndDraw(graphics, a, b,44,115,85);
+                g.setColor(Color.getHSBColor(val[0], val[1], val[2]));
                 graphics.drawOval(a.x - 4, a.y - 4, 8, 8);
                 graphics.fillOval(a.x - 4, a.y - 4, 8, 8);
                 if (polygon.getPosition(i) == Position.Vertical) {
@@ -124,11 +166,12 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
                 }
             }
             Point b = polygon.getPoints().get(polygon.getPoints().size() - 1);
+            g.setColor(Color.getHSBColor(val[0], val[1], val[2]));
             graphics.drawOval(b.x - 4, b.y - 4, 8, 8);
             graphics.fillOval(b.x - 4, b.y - 4, 8, 8);
             if (polygon.isDone()) {
                 Point a = polygon.getPoints().get(0);
-                pickAndDraw(graphics, a, b);
+                pickAndDraw(graphics, a, b,44,115,85);
 
                 var l = polygon.getX();
                 if (polygon.getPosition(polygon.getPoints().size() - 1) == Position.Vertical) {
@@ -145,7 +188,7 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
             List<Point> ls = polygons.get(lastIdx).getPoints();
             if (!polygons.get(lastIdx).isDone() && !ls.isEmpty()) {
                 Point p = ls.get(ls.size() - 1);
-                pickAndDraw(graphics, p, new Point(x, y));
+                pickAndDraw(graphics, p, new Point(x, y),44,115,85);
             }
         }
     }
@@ -438,7 +481,40 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
             repaint();
         }
         if(e.getSource() == MainPanel.bresenhamBox) {
+            MainPanel.wuBox.setSelected(false);
             repaint();
+        }
+        if(e.getSource() == MainPanel.wuBox) {
+            MainPanel.bresenhamBox.setSelected(false);
+            repaint();
+        }
+
+        if(e.getSource() == MainPanel.saveItem) {
+           //int response = fileChooser.showOpenDialog(null);
+            XMLEncoder encoder=null;
+            try{
+                encoder=new XMLEncoder(new BufferedOutputStream(new FileOutputStream(MainPanel.textField.getText()+".xml")));
+            }catch(FileNotFoundException fileNotFound){
+                System.out.println("ERROR: While Creating or Opening the File .xml");
+            }
+            encoder.writeObject(polygons);
+            encoder.close();
+        }
+
+        if(e.getSource() == MainPanel.loadItem) {
+            int response = fileChooser.showOpenDialog(null);
+            if(response == JFileChooser.APPROVE_OPTION) {
+                File file = new File(fileChooser.getSelectedFile().getAbsolutePath());
+                XMLDecoder decoder=null;
+                try {
+                    decoder=new XMLDecoder(new BufferedInputStream(new FileInputStream(file)));
+                } catch (FileNotFoundException ex) {
+                    System.out.println("ERROR: File dvd.xml not found");
+                }
+                List<Polygon> pls =(List<Polygon>)decoder.readObject();
+                polygons = pls;
+                repaint();
+            }
         }
     }
 

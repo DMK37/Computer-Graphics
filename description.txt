@@ -1,0 +1,82 @@
+Grafika Komputerowa 1, Projekt 1, Dmytro Tolstoi, 323667
+Klawiszologia:
+
+    1.1 Żeby dodać nowy wielokąt trzeba nacisnąć na przycisk z linią z Solidworksu (zapalony przycisk oznacza, że możemy
+        zaczynać rysowanie nowego wielokąta).
+    1.2 Dodać wierzchołek możemy tylko przy nacisnięciu i zwolnieniu przycisku w jednym miejscu, wielokąt zostanie
+        zbudowany tylko przy nacisnięciu na punkt startowy (zamykaniu wielokąta)
+    1.3 Usuwanie wielokąta jest zrobione przez nacisnięcie prawym przycieskiem myszy w wielokącie
+        i wyborem pocji "Delete Polygon".
+
+    2.1 Przesuwanie wierzchołka, krawędzi oraz wielokąta jest zrobione przez przeciągnięcie odpowiednich
+        elementów myszą.
+    2.2 Klikając prawym przyciskiem myszy na wierzchołek możemy wybrać z menu opcję usunąć wierzchołek.
+    2.3 Dodać wierzchołek w środku krawędzi możemy przez nacisnięcie prawym przyciskiem myszy na krawędź i wybór opcji
+        "Add Point".
+        
+    3.1 Ustawić typ krawędzi możemy w menu kontekstowym, które pojawi się, jeśli klikniemy na krawędź prawym przyciskiem
+        myszy. Są trzy opcje: "Set Horizontal", "Set Vertical", "Set Default".
+    3.2 Zawsze możemy zmieniać "relacje", ale program nie pozwoli ustawić dwie sąsiedujące krawędzi jednocześnie typu
+         "Vertical" lub "Horizontal".
+
+    4.1 Wielokąt odsunięty pojawi się po kliknięciu na checkBox o nazwie "Offset", rozmiar wielokąta możemy zmieniać
+        sliderem. Slider nie przesuniemy, jeśli "Offset" nie jest zaznaciony.
+    4.2 Wielokąty odsunięte pojawią się dla wszystkich wielokątów, czyli nie ma opcji stworzyć wilelokąt odsunięty
+        tylko dla jednego wielokąta.
+
+    5.1 Algorytm Bresenhama możemy włączyć lub wyłączyć przez odpowiedni przycisk w górnym menu.
+        Jest on zaimplementowany w klasie Calculation.
+
+Założenia:
+    1. Wielokąty są przechowywane jako listy punktów.
+    2. Usuwając wierzchołek w trójkącie, usuniemy cały trójkąt,
+    3. Wszystkie kliknięcia na wirzchołki lub krawędzie są zrobione przez sprawdzanie czy jesteśmy odpowiednio blisko
+        obliczając dystans od punktu do punktu lub od krawędzi do punktu.
+    4. Sprawdzanie czy kliknęliśmy w środku wielokąta jest zaimplementowane przez sprawdzanie czy pozioma linia idąca
+        w prawo od danego punkta przecina wielokąt nieparzyście wiele razy. (Implementacja wklasie Calculation)
+    5.  Relacje są zapisane w liście positions w klasie Polygon, gdzie każdy element na i-tej pozycji odpowiada i-tej
+        krawędzi (po i-tą krawędzią oznaczamy, krawędź która zaczyna się w i-tym punkcie z listy points
+        w klasie Polygon, czyli krawędź będzie i-(i+1)).
+    6. Przy dodawaniu relacji jest sprawdzanie czy poprzednia krawędź lub następna nie są tego samego typu jak ten na
+        który chcemy ustawić (nie stosuje się to typu "Default").
+    7. Przeciągając wierzchołek: jeśli wierzchołek sąsiaduje z krawędzią pionową to dla
+        sąsiedniego wierzchołka kopiujemy pozycje ze współrzednej x z wierzchołka który przesuwamy, dla poziomej
+        odpowiednio ze współrzednej y.
+    8. Przeciągając krawędź robimy podobnie jak z wierzchołkiem: jeśli krawędź sąsiaduje z pionową
+        krawędzią to na wierzchołku, który nie należy do naszej krawędzi, zmieniamy wartość na współrzędnej x, dla
+        poziomej analogicznie tylko dla y.
+
+    9. Realizacja wielokąta odsuniętego jest częściowo niezakończona. Poprawnie działa, jeśli wielokąt  odsunięty nie ma
+        samoprzecięć. Podstawowy wielokąt odsunięty szukamy tak: bierzemy krawędź, szukamy w centrum linię prostopadłą,
+        szukamy w którą stronę wychodzimy z wielokąta idąc po znalezonej linii, szukamy punkt na prostopadłej oddalony
+        od przecięcia krawędzi z prostopadłą na wskazany offset, szukamy równoległą do krawędzi w znalezionym punkcie,
+        zapisujemy równanie prostej. Po przechodzeniu po wszystkim krawędziam przechodzimy po każdej otrzymanej prostej
+        i szukamy punkt przecięcia z następną prostą(dla i-tej krawędzi szukamy punkt przecięcia z i + 1).
+
+    10. Algorytm z punktu 9 działa tylko dla wielokąta odsuniętego bez samoprzecięć. Próba rozwiązania tego problemu
+     była podobna: dodajemy otrzymane punkty jako klucze w hashmapę, wartościami są listy, gdzie pierwszy element to jest
+     następny sąsiad, a drugi - poprzedni, przechodzimy przez każdą krawędź z wielokąta odsuniętego z punktu 9 i
+     sprawdzamy czy dana krawędź przecina jakąś inną krawędź, jeśli tak, jeśli punkt przecięcia jest bliżej niż next
+     dla pierwszego wierzchołka z krawędzi to podmieniamy next na ten punkt, jeśli drugi wierzchołek z krawędzi jest w
+     środku wielokąta odsuniętego, to prev ustawiamy na null else analogicznie sprawdzamy jak dla pierwszego tylko dla
+     prev. Dodatkowo podobnie sprawdzamy czy trzeba naprawić next dla pierwszego wierzchołka z krawędzi przecinającej i
+     prev dla drugiej. Jeśli nie znależliśmy że nasza główna krawędź przecina inną, to jeszcze sprawszamy czy cała ta
+     krawędź nie jest zawarta w wielokącie odsuniętym, tutaj trzeba poprawnie ustawić prev i next w hashmapie (
+     chyba mam niepoprawne zaimplementowanie ostatniej podczęści). przy rysowaniu sprawdzamy czy wierzchołek ma jakiegoś
+     sąsiada ustawionego na null, jeśli tak to nie rusjemy krawędzi natym wierzchołku.
+
+     Uwaga: jeśli brakuje miejsca na paneli, okno można rozszerzyć. Przy załadowaniu wielokąt może wyskoczyć za scenę,
+     jeśli program jest otwierany na małym ekranie.
+
+     Część laboratoryjna:
+     1. Algorytm Wu możemy włączyć naciskając na odpowiedni checkBox, nie da się włączyć jednocześnie 2 algorytmy do
+     rysowania. Jest napisany w klasie Calculation.
+     2. Żeby zapisać plik w postaci xml trzeba podać w TextField odpowiednią nazwę bez rozszrzenia i kliknąć w menu na
+     "Save",
+      plik będzie
+      zapisywany w folderze projekta.
+     3. Żeby załadować scenę trzeba kliknąć w menu na "Load" i wybrać plik z rozszerzeniem xml. (Musi wyskoczyć okienko,
+      na mac'u działa).
+
+
+
