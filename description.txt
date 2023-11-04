@@ -1,4 +1,4 @@
-Grafika Komputerowa 1, Projekt 1, Dmytro Tolstoi, 323667
+Grafika Komputerowa 1, Projekt 1
 Klawiszologia:
 
     1.1 Żeby dodać nowy wielokąt trzeba nacisnąć na przycisk z linią z Solidworksu (zapalony przycisk oznacza, że możemy
