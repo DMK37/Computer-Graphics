@@ -1,2 +1,2 @@
-# Computer-Graphics
-Projects from computer graphics course
+# Polygon Editor
+Polygon Editor Project
